@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Sansheera.WholesalePlatform.Api/bin/Debug/net8.0
+/Sansheera.WholesalePlatform.Api/obj
+/Sansheera.WholesalePlatform.Application/bin/Debug/net8.0
+/Sansheera.WholesalePlatform.Application/obj
+/Sansheera.WholesalePlatform.Domain/bin/Debug/net8.0
+/Sansheera.WholesalePlatform.Domain/obj
+/Sansheera.WholesalePlatform.Infrastructure/bin/Debug/net8.0
+/Sansheera.WholesalePlatform.Infrastructure/obj

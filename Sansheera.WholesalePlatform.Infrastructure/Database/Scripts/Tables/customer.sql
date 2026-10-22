@@ -1,0 +1,119 @@
+CREATE TABLE IF NOT EXISTS customer
+(
+    -- Identity
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    customer_code BIGINT GENERATED ALWAYS AS IDENTITY UNIQUE,
+
+    -- Customer / Business
+    -- Customer can be a retailer, wholesaler, distributor, etc.
+    business_name VARCHAR(200) NOT NULL,
+
+    business_type_id SMALLINT NOT NULL
+        REFERENCES business_type(id),
+
+    status_id SMALLINT NOT NULL
+        REFERENCES customer_status(id),
+
+    -- Primary Contact
+    contact_person_name VARCHAR(150) NOT NULL,
+    phone_number VARCHAR(15) NOT NULL,
+    email VARCHAR(254),
+
+    is_phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    phone_verified_at TIMESTAMPTZ,
+
+    is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    email_verified_at TIMESTAMPTZ,
+
+    -- Business Address
+    address_line_1 VARCHAR(200) NOT NULL,
+    address_line_2 VARCHAR(200),
+    landmark VARCHAR(150),
+
+    city VARCHAR(100) NOT NULL,
+    district VARCHAR(100),
+    state_name VARCHAR(100) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    country_code CHAR(2) NOT NULL DEFAULT 'IN',
+
+    -- Tax Details
+    gstin VARCHAR(15),
+    legal_business_name VARCHAR(200),
+    gst_state_code CHAR(2),
+
+    is_gstin_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    gstin_verified_at TIMESTAMPTZ,
+
+    -- Account Activity
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login_at TIMESTAMPTZ,
+
+    -- Audit
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by UUID,
+
+    updated_at TIMESTAMPTZ,
+    updated_by UUID,
+
+    -- Constraints
+    CONSTRAINT ck_customer_business_name_not_blank
+        CHECK (LENGTH(TRIM(business_name)) > 0),
+
+    CONSTRAINT ck_customer_contact_person_not_blank
+        CHECK (LENGTH(TRIM(contact_person_name)) > 0),
+
+    CONSTRAINT ck_customer_phone_not_blank
+        CHECK (LENGTH(TRIM(phone_number)) > 0),
+
+    CONSTRAINT ck_customer_email_not_blank
+        CHECK (email IS NULL OR LENGTH(TRIM(email)) > 0),
+
+    CONSTRAINT ck_customer_address_not_blank
+        CHECK (LENGTH(TRIM(address_line_1)) > 0),
+
+    CONSTRAINT ck_customer_city_not_blank
+        CHECK (LENGTH(TRIM(city)) > 0),
+
+    CONSTRAINT ck_customer_state_not_blank
+        CHECK (LENGTH(TRIM(state_name)) > 0),
+
+    CONSTRAINT ck_customer_postal_code_not_blank
+        CHECK (LENGTH(TRIM(postal_code)) > 0),
+
+    CONSTRAINT ck_customer_gstin_format
+        CHECK (gstin IS NULL OR gstin ~ '^[0-9A-Z]{15}$'),
+
+    CONSTRAINT ck_customer_gst_state_code
+        CHECK (
+            gst_state_code IS NULL
+            OR gst_state_code ~ '^[0-9]{2}$'
+        )
+);
+
+
+-- ============================================================
+-- Indexes
+-- ============================================================
+
+CREATE INDEX IF NOT EXISTS ix_customer_business_name
+    ON customer(business_name);
+
+CREATE INDEX IF NOT EXISTS ix_customer_business_type_id
+    ON customer(business_type_id);
+
+CREATE INDEX IF NOT EXISTS ix_customer_status_id
+    ON customer(status_id);
+
+CREATE INDEX IF NOT EXISTS ix_customer_city
+    ON customer(city);
+
+CREATE INDEX IF NOT EXISTS ix_customer_phone_number
+    ON customer(phone_number);
+
+CREATE INDEX IF NOT EXISTS ix_customer_email
+    ON customer(email);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_customer_gstin
+    ON customer(gstin)
+    WHERE gstin IS NOT NULL;

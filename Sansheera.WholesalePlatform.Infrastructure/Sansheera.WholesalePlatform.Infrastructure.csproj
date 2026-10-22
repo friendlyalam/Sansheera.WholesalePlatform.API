@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Database\StoredProcedures\" />
+    <Folder Include="Queries\" />
+  </ItemGroup>
+
+  <!-- Ensure SQL script files are not processed by any build-time SQL validators
+       or treated as compile items. Mark them as None so they don't cause
+       SQL Server/SSDT validation errors during the .NET build. -->
+  <ItemGroup>
+    <!-- Remove from common build item groups in case SDK or tools implicitly
+         include them, then include explicitly as None so they are ignored by
+         SQL/compile targets. -->
+    <Content Remove="Database\Scripts\**\*.sql" />
+    <EmbeddedResource Remove="Database\Scripts\**\*.sql" />
+    <None Include="Database\Scripts\**\*.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sansheera.WholesalePlatform.Application\Sansheera.WholesalePlatform.Application.csproj" />
+    <ProjectReference Include="..\Sansheera.WholesalePlatform.Domain\Sansheera.WholesalePlatform.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

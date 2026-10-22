@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Cart\" />
+    <Folder Include="Features\Delivery\" />
+    <Folder Include="Features\Notifications\" />
+    <Folder Include="Features\Orders\" />
+    <Folder Include="Features\Payments\" />
+    <Folder Include="Features\Catalog\" />
+    <Folder Include="Features\Employee\" />
+    <Folder Include="Features\Identity\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="FluentValidation" Version="12.2.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sansheera.WholesalePlatform.Domain\Sansheera.WholesalePlatform.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
