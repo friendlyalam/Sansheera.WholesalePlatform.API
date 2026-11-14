@@ -1,6 +1,6 @@
 ﻿using Sansheera.WholesalePlatform.Application.Features.Customers.Customer.Abstractions;
 using Sansheera.WholesalePlatform.Application.Features.Customers.Customer.GetCustomerById;
-using Sansheera.WholesalePlatform.Domain.Customers;
+using Sansheera.WholesalePlatform.Domain.Features.Customers;
 using Sansheera.WholesalePlatform.Infrastructure.Persistence;
 using Sansheera.WholesalePlatform.Infrastructure.Persistence.Dapper;
 

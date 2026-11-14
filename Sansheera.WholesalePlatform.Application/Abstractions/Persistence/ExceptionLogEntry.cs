@@ -1,4 +1,6 @@
-﻿namespace Sansheera.WholesalePlatform.Application.Abstractions.Persistence
+﻿using System.Net;
+
+namespace Sansheera.WholesalePlatform.Application.Abstractions.Persistence
 {
     public sealed record ExceptionLogEntry(
  string? TraceId,
@@ -10,7 +12,7 @@
  string? RequestUrl,
  string? HttpMethod,
  Guid? LoginId,
- string? ClientIp,
+ IPAddress? ClientIp,
  string? UserAgent,
  string? Environment,
  string? Payload);

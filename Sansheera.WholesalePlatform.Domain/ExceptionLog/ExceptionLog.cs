@@ -1,4 +1,6 @@
-﻿namespace Sansheera.WholesalePlatform.Domain.ExceptionLog
+﻿using System.Net;
+
+namespace Sansheera.WholesalePlatform.Domain.ExceptionLog
 {
     public sealed class ExceptionLog
     {
@@ -17,7 +19,7 @@
             string? requestUrl,
             string? httpMethod,
             Guid? loginId,
-            string? clientIp,
+            IPAddress? clientIp,
             string? userAgent,
             string? environment,
             string? payload)
@@ -60,7 +62,7 @@
 
         public Guid? LoginId { get; private set; }
 
-        public string? ClientIp { get; private set; }
+        public IPAddress? ClientIp { get; private set; }
 
         public string? UserAgent { get; private set; }
 

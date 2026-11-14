@@ -6,5 +6,6 @@
         public const string DuplicateRecord = nameof(DuplicateRecord);
         public const string ValidationFailed = nameof(ValidationFailed);
         public const string UnexpectedError = nameof(UnexpectedError);
+        public const string OtpRequested = nameof(OtpRequested);
     }
 }

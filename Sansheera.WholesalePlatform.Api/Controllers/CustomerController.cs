@@ -26,7 +26,7 @@ namespace Sansheera.WholesalePlatform.Api.Controllers
             _messages = messages;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<ActionResult<ApiResponse<CreateCustomerResult>>> Create(
     [FromBody] CreateCustomerCommand createCustomerCommand,
     CancellationToken cancellationToken)

@@ -13,6 +13,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
   </ItemGroup>
 
@@ -25,12 +26,10 @@
        or treated as compile items. Mark them as None so they don't cause
        SQL Server/SSDT validation errors during the .NET build. -->
   <ItemGroup>
-    <!-- Remove from common build item groups in case SDK or tools implicitly
-         include them, then include explicitly as None so they are ignored by
-         SQL/compile targets. -->
+    <Compile Remove="Database\Scripts\**\*.sql" />
     <Content Remove="Database\Scripts\**\*.sql" />
     <EmbeddedResource Remove="Database\Scripts\**\*.sql" />
-    <None Include="Database\Scripts\**\*.sql">
+    <None Update="Database\Scripts\**\*.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>

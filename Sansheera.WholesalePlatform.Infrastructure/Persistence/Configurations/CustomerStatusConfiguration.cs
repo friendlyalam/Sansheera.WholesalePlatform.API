@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Sansheera.WholesalePlatform.Domain.Customers;
+using Sansheera.WholesalePlatform.Domain.Features.Customers;
 
 namespace Sansheera.WholesalePlatform.Infrastructure.Persistence.Configurations
 {

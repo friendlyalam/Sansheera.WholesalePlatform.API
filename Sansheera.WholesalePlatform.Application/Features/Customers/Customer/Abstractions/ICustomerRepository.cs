@@ -5,7 +5,7 @@ namespace Sansheera.WholesalePlatform.Application.Features.Customers.Customer.Ab
     public interface ICustomerRepository
     {
         Task AddAsync(
-            Domain.Customers.Customer customer,
+            Domain.Features.Customers.Customer customer,
             CancellationToken cancellationToken);
 
         Task<GetCustomerByIdResult?> GetByIdAsync(

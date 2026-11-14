@@ -1,7 +1,9 @@
 using Sansheera.WholesalePlatform.Api.Mapping;
 using Sansheera.WholesalePlatform.Api.Middlewares;
 using Sansheera.WholesalePlatform.Application;
+using Sansheera.WholesalePlatform.Application.Abstractions.Authentication;
 using Sansheera.WholesalePlatform.Infrastructure;
+using Sansheera.WholesalePlatform.Infrastructure.Features.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +25,19 @@ builder.Services.AddAutoMapper(
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<IMockSmsInbox, MockSmsInbox>();
+    builder.Services.AddScoped<ISmsService, MockSmsService>();
+}
+
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -31,10 +45,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseExceptionHandler();
 app.UseHttpsRedirection();
-
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseExceptionHandler();
 
 app.UseMiddleware<ValidationExceptionMiddleware>();
 app.MapControllers();

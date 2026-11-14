@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Localization;
 using Sansheera.WholesalePlatform.Api.Contracts.Common;
@@ -59,17 +60,22 @@ namespace Sansheera.WholesalePlatform.Api.Middlewares
                     )
             };
 
-            if (statusCode == StatusCodes.Status500InternalServerError)
-            {
-                // Log the original exception first. This remains available
-                // even if writing to ExceptionLogs subsequently fails.
-                _logger.LogError(
-                    exception,
-                    "Unhandled exception. TraceId: {TraceId}",
-                    context.TraceIdentifier);
+            // Log every exception handled by this middleware.
+            var logLevel = statusCode >=
+                           StatusCodes.Status500InternalServerError
+                ? LogLevel.Error
+                : LogLevel.Warning;
 
-                await TryPersistExceptionAsync(context, exception);
-            }
+            _logger.Log(
+                logLevel,
+                exception,
+                "Exception occurred. StatusCode: {StatusCode}, TraceId: {TraceId}",
+                statusCode,
+                context.TraceIdentifier);
+
+            // Attempt database persistence for every exception,
+            // regardless of the HTTP status code.
+            await TryPersistExceptionAsync(context, exception);
 
             context.Response.StatusCode = statusCode;
 
@@ -91,8 +97,10 @@ namespace Sansheera.WholesalePlatform.Api.Middlewares
         {
             try
             {
-                // IExceptionLogWriter and AppDbContext are scoped.
-                await using var scope = _scopeFactory.CreateAsyncScope();
+                // Create a separate scope because the exception handler
+                // must not depend on the lifetime of request-scoped services.
+                await using var scope =
+                    _scopeFactory.CreateAsyncScope();
 
                 var writer = scope.ServiceProvider
                     .GetRequiredService<IExceptionLogWriter>();
@@ -100,13 +108,18 @@ namespace Sansheera.WholesalePlatform.Api.Middlewares
                 var loginIdValue = context.User
                     .FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                Guid? loginId = Guid.TryParse(loginIdValue, out var parsedLoginId)
+                Guid? loginId = Guid.TryParse(
+                    loginIdValue,
+                    out var parsedLoginId)
                     ? parsedLoginId
                     : null;
 
                 var entry = new ExceptionLogEntry(
                     TraceId: context.TraceIdentifier,
-                    LogLevel: "Error",
+                    LogLevel: exception is ValidationException
+                        or DuplicateRecordException
+                        ? "Warning"
+                        : "Error",
                     ExceptionType: exception.GetType().FullName,
                     Message: exception.Message,
                     StackTrace: exception.StackTrace,
@@ -114,27 +127,30 @@ namespace Sansheera.WholesalePlatform.Api.Middlewares
                     RequestUrl: context.Request.Path.Value,
                     HttpMethod: context.Request.Method,
                     LoginId: loginId,
-                    ClientIp: context.Connection.RemoteIpAddress?.ToString(),
+                    ClientIp: context.Connection.RemoteIpAddress,
                     UserAgent: context.Request.Headers.UserAgent.ToString(),
                     Environment: _environment.EnvironmentName,
                     Payload: await GetRequestPayloadAsync(context));
 
-                // Do not use the request cancellation token for this
-                // best-effort logging attempt.
-                await writer.WriteAsync(entry, CancellationToken.None);
+                // Best-effort persistence: don't use the request token,
+                // because the request may already have been cancelled.
+                await writer.WriteAsync(
+                    entry,
+                    CancellationToken.None);
             }
             catch (Exception loggingException)
             {
-                // Never let a secondary logging failure replace the
-                // original exception.
+                // A logging failure must never hide the original exception.
                 _logger.LogError(
                     loggingException,
-                    "Failed to persist exception to ExceptionLogs. Original TraceId: {TraceId}",
+                    "Failed to persist exception to ExceptionLogs. " +
+                    "Original TraceId: {TraceId}",
                     context.TraceIdentifier);
             }
         }
 
-        private static string? GetInnerExceptionDetails(Exception exception)
+        private static string? GetInnerExceptionDetails(
+            Exception exception)
         {
             var details = new List<string>();
 
@@ -152,7 +168,7 @@ namespace Sansheera.WholesalePlatform.Api.Middlewares
         }
 
         private static async Task<string?> GetRequestPayloadAsync(
-    HttpContext context)
+            HttpContext context)
         {
             if (context.Request.ContentLength is null or 0 ||
                 !context.Request.Body.CanRead)
@@ -162,17 +178,31 @@ namespace Sansheera.WholesalePlatform.Api.Middlewares
 
             context.Request.EnableBuffering();
 
+            if (context.Request.Body.CanSeek)
+            {
+                context.Request.Body.Position = 0;
+            }
+
             using var reader = new StreamReader(
                 context.Request.Body,
                 leaveOpen: true);
 
-            var payload = await reader.ReadToEndAsync();
+            try
+            {
+                var payload = await reader.ReadToEndAsync(
+                    CancellationToken.None);
 
-            context.Request.Body.Position = 0;
-
-            return string.IsNullOrWhiteSpace(payload)
-                ? null
-                : payload;
+                return string.IsNullOrWhiteSpace(payload)
+                    ? null
+                    : payload;
+            }
+            finally
+            {
+                if (context.Request.Body.CanSeek)
+                {
+                    context.Request.Body.Position = 0;
+                }
+            }
         }
     }
 }

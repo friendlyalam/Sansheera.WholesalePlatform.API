@@ -1,7 +1,6 @@
-﻿
-using Sansheera.WholesalePlatform.Domain.Common;
+﻿using Sansheera.WholesalePlatform.Domain.Common;
 
-namespace Sansheera.WholesalePlatform.Domain.Customers
+namespace Sansheera.WholesalePlatform.Domain.Features.Customers
 {
 
     public sealed class Customer : BaseEntity<Customer>
@@ -30,8 +29,6 @@ namespace Sansheera.WholesalePlatform.Domain.Customers
             string? legalBusinessName,
             string? gstStateCode)
         {
-            Id = Guid.NewGuid();
-
             BusinessName = businessName;
             BusinessTypeId = businessTypeId;
             StatusId = statusId;
@@ -56,10 +53,14 @@ namespace Sansheera.WholesalePlatform.Domain.Customers
             IsEmailVerified = false;
             IsGstinVerified = false;
             IsActive = true;
-            CreatedAt = DateTime.UtcNow;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
 
         public Guid Id { get; private set; }
+        public void SetId(Guid id)
+        {
+            Id = id;
+        }
         public long CustomerCode { get; private set; }
 
         public string BusinessName { get; private set; } = string.Empty;
@@ -84,15 +85,17 @@ namespace Sansheera.WholesalePlatform.Domain.Customers
         public string? GstStateCode { get; private set; }
 
         public bool IsPhoneVerified { get; private set; }
-        public DateTime? PhoneVerifiedAt { get; private set; }
+        public DateTimeOffset? PhoneVerifiedAt { get; private set; }
         public bool IsEmailVerified { get; private set; }
-        public DateTime? EmailVerifiedAt { get; private set; }
+        public DateTimeOffset EmailVerifiedAt { get; private set; }
         public bool IsGstinVerified { get; private set; }
-        public DateTime? GstinVerifiedAt { get; private set; }
+        public DateTimeOffset? GstinVerifiedAt { get; private set; }
 
         public bool IsActive { get; private set; }
-        public DateTime? LastLoginAt { get; private set; }
+        public DateTimeOffset? LastLoginAt { get; private set; }
     }
+
+
 }
 
 //we can add in future inside the customer folder

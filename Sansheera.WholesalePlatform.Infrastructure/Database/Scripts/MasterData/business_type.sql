@@ -8,5 +8,5 @@ ON CONFLICT (code) DO NOTHING;
 
 
 INSERT INTO business_type (code, name)
-VALUES ('RETAILER', 'Retailer')
+VALUES ('GENERAL_STORE', 'General Store')
 ON CONFLICT (code) DO NOTHING;

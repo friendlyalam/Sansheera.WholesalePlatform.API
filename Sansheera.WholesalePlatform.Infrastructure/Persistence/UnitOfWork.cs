@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Sansheera.WholesalePlatform.Application.Abstractions.Persistence;
-using Sansheera.WholesalePlatform.Application.Common.Exceptions;
+﻿using Sansheera.WholesalePlatform.Application.Abstractions.Persistence;
 
 namespace Sansheera.WholesalePlatform.Infrastructure.Persistence
 {
@@ -17,25 +14,7 @@ namespace Sansheera.WholesalePlatform.Infrastructure.Persistence
         public async Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {
-            try
-            {
-                return await _dbContext.SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateException ex)
-            {
-                var postgresException = ex.GetBaseException() as PostgresException;
-
-                if (postgresException?.SqlState == PostgresErrorCodes.UniqueViolation
-                    //&& 
-                    //postgresException.ConstraintName
-                    //    == DatabaseConstraintNames.CustomerPhoneNumberUnique
-                        )
-                {
-                    throw new DuplicateRecordException();
-                }
-
-                throw;
-            }
+            return await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

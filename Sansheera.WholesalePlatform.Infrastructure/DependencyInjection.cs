@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Sansheera.WholesalePlatform.Application.Abstractions.Authentication;
 using Sansheera.WholesalePlatform.Application.Abstractions.Persistence;
 using Sansheera.WholesalePlatform.Application.Features.Customers.BusinessType.Abstractions;
 using Sansheera.WholesalePlatform.Application.Features.Customers.Customer.Abstractions;
 using Sansheera.WholesalePlatform.Application.Features.Customers.CustomerStatus.Abstractions;
+using Sansheera.WholesalePlatform.Infrastructure.Features.Authentication;
 using Sansheera.WholesalePlatform.Infrastructure.Features.Customers;
 using Sansheera.WholesalePlatform.Infrastructure.Logging;
 using Sansheera.WholesalePlatform.Infrastructure.Persistence;
@@ -32,12 +34,28 @@ namespace Sansheera.WholesalePlatform.Infrastructure
             services.AddScoped<ICustomerStatusRepository, CustomerStatusRepository>();
             services.AddScoped<IBusinessTypeRepository, BusinessTypeRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IDapper, DapperService>();
+            services.AddScoped<IUserAccountRepository, UserAccountRepository>();
+            services.AddScoped<IUserCredentialRepository, UserCredentialRepository>();
+
+            //services
+            services.AddSingleton<
+            IOtpHashService,
+            OtpHashService>();
+
 
             //services.AddScoped<IUnitOfWork>(serviceProvider =>
             //    serviceProvider.GetRequiredService<AppDbContext>());
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IExceptionLogWriter, ExceptionLogWriter>();
+            services.AddScoped<IDapper, DapperService>();
+
+
+            //two factor
+            services.AddHttpClient<TwoFactorSmsService>();
+
+            services.AddScoped<ISmsService>(serviceProvider =>
+                serviceProvider.GetRequiredService<TwoFactorSmsService>());
+
 
             return services;
         }

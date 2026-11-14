@@ -61,8 +61,7 @@ namespace Sansheera.WholesalePlatform.Infrastructure.Persistence.Configurations
                 .HasColumnName("login_id");
 
             builder.Property(x => x.ClientIp)
-                .HasColumnName("client_ip")
-                .HasMaxLength(50);
+                .HasColumnName("client_ip");
 
             builder.Property(x => x.UserAgent)
                 .HasColumnName("user_agent")
